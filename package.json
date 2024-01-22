@@ -1,0 +1,14 @@
+{
+  "name": "awattar_to_influxdb_scraper",
+  "version": "1.0.0",
+  "description": "Scraps data from the Awattar.de API and writes the data into a InfluxDB bucket",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "author": "Tilman Vatteroth <git@tilmanvatteroth.de>",
+  "license": "ISC",
+  "dependencies": {
+    "@influxdata/influxdb-client": "1.33.2"
+  }
+}
