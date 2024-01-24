@@ -9,6 +9,8 @@
   "author": "Tilman Vatteroth <git@tilmanvatteroth.de>",
   "license": "ISC",
   "dependencies": {
-    "@influxdata/influxdb-client": "1.33.2"
+    "@influxdata/influxdb-client": "1.33.2",
+    "dotenv": "16.4.0",
+    "luxon": "3.4.4"
   }
 }
