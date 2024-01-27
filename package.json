@@ -4,13 +4,19 @@
   "description": "Scraps data from the Awattar.de API and writes the data into a InfluxDB bucket",
   "main": "index.js",
   "scripts": {
-    "start": "node index.mjs"
+    "start": "dotenv -- node index.mjs",
+    "format": "prettier -c index.mjs -w"
   },
   "author": "Tilman Vatteroth <git@tilmanvatteroth.de>",
   "license": "ISC",
   "dependencies": {
     "@influxdata/influxdb-client": "1.33.2",
-    "dotenv": "16.4.0",
-    "luxon": "3.4.4"
+    "luxon": "3.4.4",
+    "node-cron": "3.0.3",
+    "consola": "3.2.3"
+  },
+  "devDependencies": {
+    "dotenv-cli": "7.3.0",
+    "prettier": "3.2.4"
   }
 }
