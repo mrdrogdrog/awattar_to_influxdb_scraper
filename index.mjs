@@ -77,14 +77,7 @@ function processDataPoints(datapoints, writeClient, pointFactory) {
   }
 }
 
-const token = checkAndExtractVar("INFLUXDB_TOKEN");
-const url = checkAndExtractVar("INFLUXDB_URL");
-const org = checkAndExtractVar("INFLUXDB_ORG");
-const bucket = checkAndExtractVar("INFLUXDB_BUCKET");
-const cronExpression = checkAndExtractVar("CRON_EXPRESSION");
-
-schedule(cronExpression, async () => {
-  logger.log("Rise and Shine! Time for another import");
+async function scrap() {
   const client = new InfluxDB({ url, token });
 
   const writeClient = client.getWriteApi(org, bucket, "ns");
@@ -93,23 +86,36 @@ schedule(cronExpression, async () => {
 
   const lastMarketPriceDate = await findLastDate(client, "marketprice");
   const marketdata = await doAwattarApiRequest(
-    "marketdata",
-    lastMarketPriceDate,
-    endOfTomorrow,
+      "marketdata",
+      lastMarketPriceDate,
+      endOfTomorrow,
   );
   logger.log("found", marketdata.data.length, "new marketdata entries");
   processDataPoints(marketdata.data, writeClient, convertMarketPriceToPoint);
 
   const lastProductionDate = await findLastDate(client, "production");
   const production = await doAwattarApiRequest(
-    "power/productions",
-    lastProductionDate,
-    endOfToday,
+      "power/productions",
+      lastProductionDate,
+      endOfToday,
   );
   logger.log("found", production.data.length, "new production entries");
   processDataPoints(production.data, writeClient, convertProductionToPoint);
 
   await writeClient.flush();
-});
+}
 
-logger.log("Starting schedule..");
+const token = checkAndExtractVar("INFLUXDB_TOKEN");
+const url = checkAndExtractVar("INFLUXDB_URL");
+const org = checkAndExtractVar("INFLUXDB_ORG");
+const bucket = checkAndExtractVar("INFLUXDB_BUCKET");
+const cronExpression = checkAndExtractVar("CRON_EXPRESSION");
+
+logger.log("One for now...");
+await scrap()
+
+logger.log("... And the rest for the road.");
+schedule(cronExpression, () => {
+  logger.log("Rise and Shine! Time for another import");
+  scrap().catch(logger.error.bind(this));
+});
