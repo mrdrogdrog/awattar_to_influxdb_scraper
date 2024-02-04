@@ -8,7 +8,7 @@
     "format": "prettier -c index.mjs -w"
   },
   "author": "Tilman Vatteroth <git@tilmanvatteroth.de>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@influxdata/influxdb-client": "1.33.2",
     "luxon": "3.4.4",
