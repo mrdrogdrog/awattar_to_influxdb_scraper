@@ -16,7 +16,7 @@
     "consola": "3.2.3"
   },
   "devDependencies": {
-    "dotenv-cli": "7.4.1",
+    "dotenv-cli": "7.4.2",
     "prettier": "3.2.5"
   }
 }
