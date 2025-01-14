@@ -13,7 +13,7 @@
     "@influxdata/influxdb-client": "1.35.0",
     "luxon": "3.5.0",
     "node-cron": "3.0.3",
-    "consola": "3.2.3"
+    "consola": "3.4.0"
   },
   "devDependencies": {
     "dotenv-cli": "7.4.2",
