@@ -23,7 +23,7 @@ function checkAndExtractVar(varName) {
 
 async function findLastDate(client, fieldName) {
   const res = await client.getQueryApi(org).collectRows(`from(bucket: "awattar")
-  |> range(start: -100000h, stop: 100000h)
+  |> range(start: -2d, stop: 2d)
   |> filter(fn: (r) => r["_measurement"] == "${fieldName}")
   |> last()
   |> sort(columns: ["_time"])`);
@@ -39,6 +39,7 @@ async function doAwattarApiRequest(endpoint, start, end) {
   const url = new URL(`https://api.awattar.de/v1/${endpoint}`);
   url.searchParams.set("start", start.toMillis());
   url.searchParams.set("end", end.toMillis());
+  logger.log(`Fetching ${url}`);
   const response = await fetch(url);
   return await response.json();
 }
@@ -57,7 +58,6 @@ function convertProductionToPoint(datapoint) {
   if (datapoint.solar === null || datapoint.wind === null) {
     return;
   }
-  debugger;
   return new Point("production")
     .timestamp(new Date(datapoint.start_timestamp))
     .floatField("solar", datapoint.solar)
@@ -85,22 +85,26 @@ async function scrap() {
   const endOfTomorrow = DateTime.now().plus({ day: 1 }).endOf("day");
 
   const lastMarketPriceDate = await findLastDate(client, "marketprice");
-  const marketdata = await doAwattarApiRequest(
-      "marketdata",
-      lastMarketPriceDate,
-      endOfTomorrow,
-  );
-  logger.log("found", marketdata.data.length, "new marketdata entries");
-  processDataPoints(marketdata.data, writeClient, convertMarketPriceToPoint);
+  if (lastMarketPriceDate < endOfToday) {
+    const marketdata = await doAwattarApiRequest(
+        "marketdata",
+        lastMarketPriceDate,
+        endOfTomorrow,
+    );
+    logger.log("found", marketdata.data.length, "new marketdata entries");
+    processDataPoints(marketdata.data, writeClient, convertMarketPriceToPoint);
+  }
 
   const lastProductionDate = await findLastDate(client, "production");
-  const production = await doAwattarApiRequest(
+  if (lastProductionDate < endOfToday) {
+    const production = await doAwattarApiRequest(
       "power/productions",
       lastProductionDate,
       endOfToday,
-  );
-  logger.log("found", production.data.length, "new production entries");
-  processDataPoints(production.data, writeClient, convertProductionToPoint);
+    );
+    logger.log("found", production.data.length, "new production entries");
+    processDataPoints(production.data, writeClient, convertProductionToPoint);
+  }
 
   await writeClient.flush();
 }
@@ -112,7 +116,7 @@ const bucket = checkAndExtractVar("INFLUXDB_BUCKET");
 const cronExpression = checkAndExtractVar("CRON_EXPRESSION");
 
 logger.log("One for now...");
-await scrap()
+await scrap();
 
 logger.log("... And the rest for the road.");
 schedule(cronExpression, () => {
