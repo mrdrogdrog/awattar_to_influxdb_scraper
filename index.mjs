@@ -51,7 +51,8 @@ function convertMarketPriceToPoint(datapoint) {
   return new Point("marketprice")
     .timestamp(new Date(datapoint.start_timestamp))
     .stringField("unit", datapoint.unit)
-    .floatField("marketprice", datapoint.marketprice);
+    .floatField("marketprice", datapoint.marketprice)
+    .floatField("marketprice_eur_per_kwh", datapoint.marketprice / 1000);
 }
 
 function convertProductionToPoint(datapoint) {
@@ -85,11 +86,12 @@ async function scrap() {
   const endOfTomorrow = DateTime.now().plus({ day: 1 }).endOf("day");
 
   const lastMarketPriceDate = await findLastDate(client, "marketprice");
+
   if (lastMarketPriceDate < endOfToday) {
     const marketdata = await doAwattarApiRequest(
-        "marketdata",
-        lastMarketPriceDate,
-        endOfTomorrow,
+      "marketdata",
+      lastMarketPriceDate,
+      endOfTomorrow,
     );
     logger.log("found", marketdata.data.length, "new marketdata entries");
     processDataPoints(marketdata.data, writeClient, convertMarketPriceToPoint);
