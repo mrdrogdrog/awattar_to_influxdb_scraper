@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "dotenv -- node index.mjs",
-    "format": "prettier -c index.mjs -w"
+    "format": "biome check index.mjs"
   },
   "author": "Tilman Vatteroth <git@tilmanvatteroth.de>",
   "license": "MIT",
@@ -17,6 +17,6 @@
   },
   "devDependencies": {
     "dotenv-cli": "11.0.0",
-    "prettier": "3.9.5"
+    "@biomejs/biome": "2.5.3"
   }
 }
