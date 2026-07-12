@@ -1,13 +1,10 @@
-FROM node:lts-alpine AS base
+FROM ghcr.io/pnpm/pnpm:11.12.0 AS builder
 USER node
 WORKDIR /usr/src/app
-COPY --chown=node package.json package.json
-COPY --chown=node package-lock.json package-lock.json
+COPY --chown=node . .
+RUN pnpm install --frozen-lockfile
 
-FROM base AS builder
-RUN npm install --omit=dev
-
-FROM base AS runner
+FROM node:26.4.0-alpine AS runner
+COPY --chown=node . .
 COPY --from=builder --chown=node /usr/src/app/node_modules node_modules
-COPY --chown=node index.mjs index.mjs
 CMD ["node", "index.mjs"]
